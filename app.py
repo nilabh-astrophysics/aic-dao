@@ -1,6 +1,5 @@
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.express as px
 import time
 from agents import run_agent, simulate_debate
 from consensus import calculate_confidence, capital_allocation
@@ -89,7 +88,7 @@ draw();
 </script>
 """, unsafe_allow_html=True)
 
-# ---------- SVG Claw Logo ----------
+# ---------- SVG Logo ----------
 st.markdown("""
 <div class="fade-in" style="display:flex;align-items:center;gap:15px;">
 <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
@@ -103,52 +102,77 @@ st.markdown("""
 st.markdown('<div class="hero-title fade-in">Autonomous Capital Infrastructure</div>', unsafe_allow_html=True)
 st.markdown('<div class="hero-subtitle fade-in">Adaptive Multi-Agent Investment Committee for Web3 Treasuries</div>', unsafe_allow_html=True)
 
+st.markdown('<div class="gradient-line"></div>', unsafe_allow_html=True)
+
+# ---------- Evaluation Mode ----------
+mode = st.radio(
+    "Evaluation Mode",
+    ["Startup", "Public Company"],
+    horizontal=True
+)
+
+st.markdown("---")
+
 # ---------- Session ----------
 if "portfolio" not in st.session_state:
     st.session_state.portfolio = []
 
-st.markdown('<div class="gradient-line"></div>', unsafe_allow_html=True)
+# ---------- Input Section ----------
+if mode == "Startup":
+    st.subheader("Startup Evaluation")
+else:
+    st.subheader("Public Company Evaluation")
 
-st.subheader("Startup Evaluation")
-
-name = st.text_input("Startup Name", "FlowBridge")
-sector = st.text_input("Sector", "Cross-chain Liquidity Protocol")
+name = st.text_input("Entity Name", "FlowBridge")
+sector = st.text_input("Sector / Industry", "Cross-chain Liquidity Protocol")
 raised = st.number_input("Capital Raised ($)", value=150000)
 burn = st.number_input("Monthly Burn ($)", value=20000)
 runway = st.number_input("Runway (months)", value=7)
-traction = st.text_input("Traction", "1200 beta users")
-revenue = st.text_input("Revenue", "Pre-revenue")
-token_model = st.text_input("Token Model", "Governance token")
+traction = st.text_input("Traction / Market Position", "1200 beta users")
+revenue = st.text_input("Revenue Status", "Pre-revenue")
+token_model = st.text_input("Governance / Capital Structure", "Governance token")
 
+# ---------- Execution ----------
 if st.button("Execute Multi-Agent Capital Review"):
 
-    startup_data = f"""
-    Name: {name}
-    Sector: {sector}
-    Raised: {raised}
-    Burn: {burn}
-    Runway: {runway}
-    Traction: {traction}
-    Revenue: {revenue}
-    Token Model: {token_model}
-    """
+    if mode == "Startup":
+        entity_data = f"""
+        Name: {name}
+        Sector: {sector}
+        Raised: {raised}
+        Burn: {burn}
+        Runway: {runway}
+        Traction: {traction}
+        Revenue: {revenue}
+        Token Model: {token_model}
+        Entity Type: Early-Stage Venture
+        """
+    else:
+        entity_data = f"""
+        Company: {name}
+        Industry: {sector}
+        Market Position: {traction}
+        Revenue Status: {revenue}
+        Capital Structure: {token_model}
+        Regulatory Exposure: Moderate
+        Entity Type: Public Corporation
+        """
 
     with st.spinner("Deploying Agent Consensus Engine..."):
-        st.toast("🧠 Risk Agent Activated")
+        st.toast("🧠 Risk Layer Activated")
         time.sleep(0.6)
-        risk = run_agent("Risk Analyst Agent", startup_data)
 
-        st.toast("🌍 Market Intelligence Online")
-        time.sleep(0.6)
-        market = run_agent("Market & Moat Agent", startup_data)
-
-        st.toast("🪙 Tokenomics Analysis Running")
-        time.sleep(0.6)
-        token = run_agent("Tokenomics & Governance Agent", startup_data)
+        if mode == "Startup":
+            risk = run_agent("Early-Stage Risk Analyst", entity_data)
+            market = run_agent("Startup Market & Moat Analyst", entity_data)
+            token = run_agent("Tokenomics & Governance Analyst", entity_data)
+        else:
+            risk = run_agent("Regulatory & Macro Risk Analyst", entity_data)
+            market = run_agent("Competitive Moat & Market Share Analyst", entity_data)
+            token = run_agent("Capital Efficiency & Governance Analyst", entity_data)
 
         confidence = calculate_confidence(risk["score"], market["score"], token["score"])
         allocation = capital_allocation(confidence)
-
         debate = simulate_debate(risk, market)
 
     st.session_state.portfolio.append({
@@ -159,7 +183,7 @@ if st.button("Execute Multi-Agent Capital Review"):
 
     st.success("Consensus Achieved")
 
-    # Gauge
+    # ---------- Gauge ----------
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=confidence,
@@ -167,16 +191,17 @@ if st.button("Execute Multi-Agent Capital Review"):
     ))
     st.plotly_chart(fig, use_container_width=True)
 
-    # Radar
+    # ---------- Radar ----------
     radar = go.Figure()
     radar.add_trace(go.Scatterpolar(
         r=[risk["score"], market["score"], token["score"], risk["score"]],
-        theta=["Risk","Market","Token","Risk"],
+        theta=["Risk","Market","Capital","Risk"],
         fill='toself'
     ))
     radar.update_layout(polar=dict(radialaxis=dict(range=[0,1])), showlegend=False)
     st.plotly_chart(radar, use_container_width=True)
 
+    # ---------- Allocation ----------
     st.markdown('<div class="glass">', unsafe_allow_html=True)
     st.write("Decision:", allocation["decision"])
     st.write("Recommended Allocation:", f"${allocation['allocation']:,}")
@@ -184,13 +209,14 @@ if st.button("Execute Multi-Agent Capital Review"):
     st.write("Downside Risk:", allocation["risk_probability"])
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.subheader("Structured Debate")
+    # ---------- Debate ----------
+    st.subheader("Structured Agent Debate")
     st.write(debate)
 
 # ---------- Footer ----------
 st.markdown("""
 <hr>
 <div style='text-align:center;color:#6B7280;font-size:14px'>
-AIC-DAO • Autonomous Investment Committee Infrastructure • Prototype v1.0
+AIC-DAO • Modular Capital Evaluation Infrastructure • Prototype v2.0
 </div>
 """, unsafe_allow_html=True)
