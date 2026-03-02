@@ -50,6 +50,14 @@ html, body, [class*="css"] {
     margin-top: 20px;
 }
 
+.transcript-box {
+    background-color: #0F172A;
+    border-left: 4px solid #22C55E;
+    padding: 25px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
 .footer {
     text-align:center;
     font-size:13px;
@@ -174,41 +182,32 @@ if st.button("Run Capital Evaluation"):
     **0.8 – 1.0** → Strong capital efficiency & defensibility  
     """)
 
-    st.markdown("---")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("### Evaluation Criteria")
+    # -------------------- DELIBERATION TRANSCRIPT --------------------
+    st.markdown('<div class="section-title">Internal Committee Deliberation Log</div>', unsafe_allow_html=True)
 
-    st.markdown("**Risk Analyst evaluates:**")
-    st.markdown("- Runway sustainability")
-    st.markdown("- Burn-to-raised ratio")
-    st.markdown("- Governance & execution risk")
+    st.markdown('<div class="transcript-box">', unsafe_allow_html=True)
 
-    st.markdown("**Market Analyst evaluates:**")
-    st.markdown("- Market traction & demand signals")
-    st.markdown("- Competitive positioning")
-    st.markdown("- Scalability potential")
+    st.markdown("**Round 1 — Risk Concerns**")
+    st.write(risk["analysis"])
 
-    st.markdown("**Capital Structure Analyst evaluates:**")
-    st.markdown("- Capital efficiency")
-    st.markdown("- Milestone realism")
-    st.markdown("- Dilution & treasury impact")
+    st.markdown("**Round 1 — Market Response**")
+    st.write(market["analysis"])
+
+    st.markdown("**Round 2 — Risk Escalation**")
+    st.write("Risk committee further evaluates capital durability and scaling exposure.")
+
+    st.markdown("**Round 2 — Market Defense**")
+    st.write("Market analyst reinforces growth trajectory and structural demand indicators.")
+
+    st.markdown("**Final Committee Statement**")
+    st.write(debate)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # -------------------- AGENT EXCHANGE --------------------
-    st.markdown('<div class="section-title">Structured Agent Exchange</div>', unsafe_allow_html=True)
-
-    st.markdown("**Risk Analyst Assessment**")
-    st.write(risk["analysis"])
-
-    st.markdown("**Market Analyst Assessment**")
-    st.write(market["analysis"])
-
-    st.markdown("**Deliberation Outcome**")
-    st.write(debate)
-
 # -------------------- FOOTER --------------------
 st.markdown(
-    "<div class='footer'>AIC-DAO • Institutional Autonomous Capital Infrastructure • v6.0</div>",
+    "<div class='footer'>AIC-DAO • Institutional Autonomous Capital Infrastructure • v6.1</div>",
     unsafe_allow_html=True
 )
