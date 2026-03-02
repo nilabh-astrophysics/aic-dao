@@ -7,81 +7,47 @@ from consensus import calculate_confidence, capital_allocation
 
 st.set_page_config(page_title="AIC-DAO", layout="wide")
 
-# ---------- Institutional CSS ----------
+# ---------- Styling ----------
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-
 html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
     background-color: #0B1120;
+    font-family: 'Inter', sans-serif;
 }
 
 .hero-title {
-    font-size: 44px;
-    font-weight: 800;
-    margin-top: 25px;
-}
-
-.hero-sub {
-    font-size: 15px;
-    color: #94A3B8;
-    margin-bottom: 25px;
+    font-size: 42px;
+    font-weight: 700;
+    margin-top: 20px;
 }
 
 .meta {
     font-size: 12px;
     color: #64748B;
-    letter-spacing: 0.5px;
-    margin-bottom: 40px;
+    margin-bottom: 25px;
 }
 
 .section-title {
     font-size: 20px;
     font-weight: 600;
-    margin-top: 50px;
-    margin-bottom: 20px;
+    margin-top: 45px;
+    margin-bottom: 15px;
 }
 
 .resolution-box {
     background-color: #0F172A;
     border: 1px solid #1E293B;
-    padding: 40px;
-    border-radius: 14px;
-    text-align: center;
-    margin-top: 30px;
-    margin-bottom: 30px;
+    padding: 35px;
+    border-radius: 12px;
+    margin-top: 25px;
 }
 
-.resolution-title {
-    font-size: 12px;
-    color: #64748B;
-    letter-spacing: 2px;
-    margin-bottom: 15px;
-}
-
-.resolution-decision {
-    font-size: 30px;
-    font-weight: 700;
-    margin-bottom: 20px;
-}
-
-.resolution-metrics {
-    font-size: 18px;
-    margin-bottom: 8px;
-}
-
-.transcript {
+.breakdown-box {
     background-color: #0F172A;
     border: 1px solid #1E293B;
     padding: 25px;
-    border-radius: 12px;
+    border-radius: 10px;
     margin-top: 20px;
-}
-
-.agent-label {
-    font-weight: 600;
-    margin-top: 15px;
 }
 
 .footer {
@@ -95,24 +61,20 @@ html, body, [class*="css"] {
 
 # ---------- Header ----------
 st.markdown('<div class="hero-title">AIC-DAO</div>', unsafe_allow_html=True)
-st.markdown('<div class="hero-sub">Autonomous Capital Evaluation Infrastructure</div>', unsafe_allow_html=True)
+st.markdown('<div class="meta">Autonomous Capital Evaluation Infrastructure</div>', unsafe_allow_html=True)
 
 evaluation_id = f"AIC-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
 timestamp = datetime.datetime.now().strftime("%d %b %Y | %H:%M")
 
 st.markdown(
-    f'<div class="meta">Evaluation ID: {evaluation_id} &nbsp;&nbsp;|&nbsp;&nbsp; Timestamp: {timestamp}</div>',
+    f'<div class="meta">Evaluation ID: {evaluation_id} | Timestamp: {timestamp}</div>',
     unsafe_allow_html=True
 )
 
 st.markdown("---")
 
 # ---------- Mode ----------
-mode = st.radio(
-    "Evaluation Mode",
-    ["Startup", "Public Company"],
-    horizontal=True
-)
+mode = st.radio("Evaluation Mode", ["Startup", "Public Company"], horizontal=True)
 
 # ---------- Inputs ----------
 st.markdown('<div class="section-title">Entity Information</div>', unsafe_allow_html=True)
@@ -146,26 +108,28 @@ if st.button("Run Capital Evaluation"):
     Mode: {mode}
     """
 
-    with st.spinner("Coordinating multi-agent capital review..."):
-        time.sleep(0.5)
+    with st.spinner("Running multi-agent capital assessment..."):
+        time.sleep(0.4)
 
         risk = run_agent("Risk Analyst", entity_data)
         market = run_agent("Market Analyst", entity_data)
         capital = run_agent("Capital Structure Analyst", entity_data)
 
         confidence = calculate_confidence(
-            risk["score"], market["score"], capital["score"]
+            risk["score"],
+            market["score"],
+            capital["score"]
         )
 
         allocation = capital_allocation(confidence)
         debate = simulate_debate(risk, market)
 
-    # ---------- Resolution Block ----------
+    # ---------- Resolution ----------
     st.markdown('<div class="resolution-box">', unsafe_allow_html=True)
-    st.markdown('<div class="resolution-title">CAPITAL COMMITTEE RESOLUTION</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="resolution-decision">{allocation["decision"]}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="resolution-metrics">Recommended Allocation: ${allocation["allocation"]:,}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="resolution-metrics">Downside Risk Probability: {allocation["risk_probability"]}</div>', unsafe_allow_html=True)
+    st.markdown(f"### {allocation['decision']}")
+    st.markdown(f"**Recommended Allocation:** ${allocation['allocation']:,}")
+    st.markdown(f"**Deployment Structure:** {allocation['structure']}")
+    st.markdown(f"**Downside Risk Probability:** {allocation['risk_probability']}")
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ---------- Confidence Gauge ----------
@@ -177,20 +141,30 @@ if st.button("Run Capital Evaluation"):
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # ---------- Structured Transcript ----------
-    st.markdown('<div class="section-title">Structured Agent Exchange</div>', unsafe_allow_html=True)
-    st.markdown('<div class="transcript">', unsafe_allow_html=True)
+    # ---------- Score Breakdown ----------
+    st.markdown('<div class="section-title">Score Breakdown</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="agent-label">Risk Analyst</div>', unsafe_allow_html=True)
-    st.write(risk["analysis"])
-
-    st.markdown('<div class="agent-label">Market Analyst</div>', unsafe_allow_html=True)
-    st.write(market["analysis"])
-
-    st.markdown('<div class="agent-label">Deliberation Outcome</div>', unsafe_allow_html=True)
-    st.write(debate)
-
+    st.markdown('<div class="breakdown-box">', unsafe_allow_html=True)
+    st.write(f"Risk Score: {risk['score']}")
+    st.write(f"Market Score: {market['score']}")
+    st.write(f"Capital Structure Score: {capital['score']}")
+    st.write(f"Weighted Confidence: {confidence}")
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # ---------- Agent Exchange ----------
+    st.markdown('<div class="section-title">Structured Agent Exchange</div>', unsafe_allow_html=True)
+
+    st.markdown("**Risk Analyst**")
+    st.write(risk["analysis"])
+
+    st.markdown("**Market Analyst**")
+    st.write(market["analysis"])
+
+    st.markdown("**Deliberation Outcome**")
+    st.write(debate)
+
 # ---------- Footer ----------
-st.markdown('<div class="footer">AIC-DAO • Institutional Autonomous Capital Infrastructure • v4.0</div>', unsafe_allow_html=True)
+st.markdown(
+    "<div class='footer'>AIC-DAO • Institutional Autonomous Capital Infrastructure • v5.0</div>",
+    unsafe_allow_html=True
+)
