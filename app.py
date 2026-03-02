@@ -7,7 +7,7 @@ from consensus import calculate_confidence, capital_allocation
 
 st.set_page_config(page_title="AIC-DAO", layout="wide")
 
-# ---------- Styling ----------
+# -------------------- STYLING --------------------
 st.markdown("""
 <style>
 html, body, [class*="css"] {
@@ -16,7 +16,7 @@ html, body, [class*="css"] {
 }
 
 .hero-title {
-    font-size: 42px;
+    font-size: 44px;
     font-weight: 700;
     margin-top: 20px;
 }
@@ -24,11 +24,11 @@ html, body, [class*="css"] {
 .meta {
     font-size: 12px;
     color: #64748B;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .section-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 600;
     margin-top: 45px;
     margin-bottom: 15px;
@@ -45,7 +45,7 @@ html, body, [class*="css"] {
 .breakdown-box {
     background-color: #0F172A;
     border: 1px solid #1E293B;
-    padding: 25px;
+    padding: 30px;
     border-radius: 10px;
     margin-top: 20px;
 }
@@ -54,14 +54,14 @@ html, body, [class*="css"] {
     text-align:center;
     font-size:13px;
     color:#475569;
-    margin-top:60px;
+    margin-top:70px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------- Header ----------
+# -------------------- HEADER --------------------
 st.markdown('<div class="hero-title">AIC-DAO</div>', unsafe_allow_html=True)
-st.markdown('<div class="meta">Autonomous Capital Evaluation Infrastructure</div>', unsafe_allow_html=True)
+st.markdown('<div class="meta">Autonomous Institutional Capital Evaluation Infrastructure</div>', unsafe_allow_html=True)
 
 evaluation_id = f"AIC-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
 timestamp = datetime.datetime.now().strftime("%d %b %Y | %H:%M")
@@ -73,10 +73,10 @@ st.markdown(
 
 st.markdown("---")
 
-# ---------- Mode ----------
+# -------------------- MODE --------------------
 mode = st.radio("Evaluation Mode", ["Startup", "Public Company"], horizontal=True)
 
-# ---------- Inputs ----------
+# -------------------- INPUT SECTION --------------------
 st.markdown('<div class="section-title">Entity Information</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
@@ -93,7 +93,7 @@ with col2:
     runway = st.number_input("Runway (months)", value=7)
     governance = st.text_input("Governance / Capital Structure", "Governance token")
 
-# ---------- Execution ----------
+# -------------------- RUN EVALUATION --------------------
 if st.button("Run Capital Evaluation"):
 
     entity_data = f"""
@@ -108,8 +108,8 @@ if st.button("Run Capital Evaluation"):
     Mode: {mode}
     """
 
-    with st.spinner("Running multi-agent capital assessment..."):
-        time.sleep(0.4)
+    with st.spinner("Executing multi-agent capital assessment..."):
+        time.sleep(0.6)
 
         risk = run_agent("Risk Analyst", entity_data)
         market = run_agent("Market Analyst", entity_data)
@@ -124,47 +124,91 @@ if st.button("Run Capital Evaluation"):
         allocation = capital_allocation(confidence)
         debate = simulate_debate(risk, market)
 
-    # ---------- Resolution ----------
+    # -------------------- RESOLUTION --------------------
     st.markdown('<div class="resolution-box">', unsafe_allow_html=True)
+
     st.markdown(f"### {allocation['decision']}")
     st.markdown(f"**Recommended Allocation:** ${allocation['allocation']:,}")
     st.markdown(f"**Deployment Structure:** {allocation['structure']}")
     st.markdown(f"**Downside Risk Probability:** {allocation['risk_probability']}")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ---------- Confidence Gauge ----------
+    # -------------------- CONFIDENCE GAUGE --------------------
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=confidence,
-        gauge={'axis': {'range':[0,1]}}
+        gauge={'axis': {'range': [0, 1]}}
     ))
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # ---------- Score Breakdown ----------
+    # -------------------- SCORE BREAKDOWN --------------------
     st.markdown('<div class="section-title">Score Breakdown</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="breakdown-box">', unsafe_allow_html=True)
+
+    st.markdown("### Agent Scores (0 – 1 Scale)")
     st.write(f"Risk Score: {risk['score']}")
     st.write(f"Market Score: {market['score']}")
     st.write(f"Capital Structure Score: {capital['score']}")
     st.write(f"Weighted Confidence: {confidence}")
+
+    st.markdown("---")
+
+    st.markdown("### Aggregation Formula")
+    st.markdown("""
+    Confidence =  
+    (0.40 × Risk Score) +  
+    (0.35 × Market Score) +  
+    (0.25 × Capital Structure Score)
+    """)
+
+    st.markdown("---")
+
+    st.markdown("### Scoring Interpretation")
+    st.markdown("""
+    **0.0 – 0.4** → High structural risk / capital preservation  
+    **0.4 – 0.6** → Moderate uncertainty / controlled pilot deployment  
+    **0.6 – 0.8** → Sustainable growth profile / structured allocation  
+    **0.8 – 1.0** → Strong capital efficiency & defensibility  
+    """)
+
+    st.markdown("---")
+
+    st.markdown("### Evaluation Criteria")
+
+    st.markdown("**Risk Analyst evaluates:**")
+    st.markdown("- Runway sustainability")
+    st.markdown("- Burn-to-raised ratio")
+    st.markdown("- Governance & execution risk")
+
+    st.markdown("**Market Analyst evaluates:**")
+    st.markdown("- Market traction & demand signals")
+    st.markdown("- Competitive positioning")
+    st.markdown("- Scalability potential")
+
+    st.markdown("**Capital Structure Analyst evaluates:**")
+    st.markdown("- Capital efficiency")
+    st.markdown("- Milestone realism")
+    st.markdown("- Dilution & treasury impact")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # ---------- Agent Exchange ----------
+    # -------------------- AGENT EXCHANGE --------------------
     st.markdown('<div class="section-title">Structured Agent Exchange</div>', unsafe_allow_html=True)
 
-    st.markdown("**Risk Analyst**")
+    st.markdown("**Risk Analyst Assessment**")
     st.write(risk["analysis"])
 
-    st.markdown("**Market Analyst**")
+    st.markdown("**Market Analyst Assessment**")
     st.write(market["analysis"])
 
     st.markdown("**Deliberation Outcome**")
     st.write(debate)
 
-# ---------- Footer ----------
+# -------------------- FOOTER --------------------
 st.markdown(
-    "<div class='footer'>AIC-DAO • Institutional Autonomous Capital Infrastructure • v5.0</div>",
+    "<div class='footer'>AIC-DAO • Institutional Autonomous Capital Infrastructure • v6.0</div>",
     unsafe_allow_html=True
 )
