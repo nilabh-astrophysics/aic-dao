@@ -1,56 +1,84 @@
-def calculate_confidence(risk_score, market_score, capital_score):
-    """
-    Weighted confidence aggregation.
-    Institutional weighting logic:
-    Risk > Market > Capital
-    """
+import math
 
-    w_risk = 0.4
-    w_market = 0.35
-    w_capital = 0.25
+# ---------------- NORMALIZATION ----------------
 
-    confidence = (
-        (risk_score * w_risk) +
-        (market_score * w_market) +
-        (capital_score * w_capital)
-    )
+def clamp(value, min_value=0.0, max_value=1.0):
+    return max(min_value, min(value, max_value))
 
-    return round(confidence, 3)
+# ---------------- RISK SCORE ----------------
 
+def risk_score(raised, burn, runway, revenue_status):
+    if burn == 0:
+        burn_ratio = 0
+    else:
+        burn_ratio = burn / raised if raised > 0 else 1
 
-def capital_allocation(confidence, treasury=1000000):
-    """
-    Treasury-aware dynamic capital allocation.
-    Allocation scales proportionally with confidence.
-    Includes structured deployment logic.
-    """
+    runway_score = clamp(runway / 24)  # 24 months ideal runway
+    burn_score = clamp(1 - burn_ratio)
+    revenue_bonus = 0.1 if revenue_status.lower() != "pre-revenue" else 0
 
-    # Dynamic scaling (max 30% of treasury)
-    max_deploy_ratio = 0.30
-    allocation = int(confidence * treasury * max_deploy_ratio)
+    score = (0.5 * runway_score) + (0.4 * burn_score) + revenue_bonus
+    return clamp(score)
 
-    risk_probability = round(1 - confidence, 2)
+# ---------------- MARKET SCORE ----------------
 
-    # Decision tiers
-    if confidence < 0.40:
-        decision = "Capital Preservation"
-        structure = "No allocation. Monitor quarterly."
+def market_score(runway, revenue_status, traction_text):
+    traction_factor = 0.5
+    if "user" in traction_text.lower():
+        traction_factor += 0.1
+    if "revenue" in revenue_status.lower():
+        traction_factor += 0.15
 
-    elif 0.40 <= confidence < 0.60:
-        decision = "Pilot Tranche"
-        structure = "Milestone-gated release (Proof-of-Execution required)"
+    runway_factor = clamp(runway / 18)
 
-    elif 0.60 <= confidence < 0.80:
-        decision = "Structured Investment"
-        structure = "40% upfront, 30% MVP validation, 30% revenue milestone"
+    score = (0.6 * traction_factor) + (0.4 * runway_factor)
+    return clamp(score)
+
+# ---------------- CAPITAL STRUCTURE SCORE ----------------
+
+def capital_structure_score(raised, burn, runway):
+    efficiency = clamp((raised - (burn * runway)) / raised if raised > 0 else 0)
+    runway_factor = clamp(runway / 18)
+
+    score = (0.6 * efficiency) + (0.4 * runway_factor)
+    return clamp(score)
+
+# ---------------- CONFIDENCE AGGREGATION ----------------
+
+def calculate_confidence(risk, market, capital):
+    return round((0.40 * risk) + (0.35 * market) + (0.25 * capital), 3)
+
+# ---------------- CAPITAL ALLOCATION ENGINE ----------------
+
+def capital_allocation(confidence):
+    if confidence < 0.4:
+        return {
+            "decision": "Capital Preservation Mode",
+            "allocation": 50000,
+            "structure": "Milestone-based staged release",
+            "risk_probability": round(1 - confidence, 2)
+        }
+
+    elif confidence < 0.6:
+        return {
+            "decision": "Controlled Pilot Deployment",
+            "allocation": 100000,
+            "structure": "Tranche-based allocation",
+            "risk_probability": round(1 - confidence, 2)
+        }
+
+    elif confidence < 0.8:
+        return {
+            "decision": "Structured Investment",
+            "allocation": 150000,
+            "structure": "Phased capital release with performance checkpoints",
+            "risk_probability": round(1 - confidence, 2)
+        }
 
     else:
-        decision = "High Conviction Deployment"
-        structure = "60% upfront, 40% milestone-based governance release"
-
-    return {
-        "decision": decision,
-        "allocation": allocation,
-        "structure": structure,
-        "risk_probability": risk_probability
-    }
+        return {
+            "decision": "High Conviction Deployment",
+            "allocation": 250000,
+            "structure": "Full allocation with governance oversight",
+            "risk_probability": round(1 - confidence, 2)
+        }
