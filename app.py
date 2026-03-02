@@ -3,7 +3,13 @@ import plotly.graph_objects as go
 import time
 import datetime
 from agents import run_agent, simulate_debate
-from consensus import calculate_confidence, capital_allocation
+from consensus import (
+    risk_score,
+    market_score,
+    capital_structure_score,
+    calculate_confidence,
+    capital_allocation
+)
 
 st.set_page_config(page_title="AIC-DAO", layout="wide")
 
@@ -119,14 +125,20 @@ if st.button("Run Capital Evaluation"):
     with st.spinner("Executing multi-agent capital assessment..."):
         time.sleep(0.6)
 
+        # Qualitative agent analysis (text only)
         risk = run_agent("Risk Analyst", entity_data)
         market = run_agent("Market Analyst", entity_data)
         capital = run_agent("Capital Structure Analyst", entity_data)
 
+        # ---------------- QUANTITATIVE SCORES ----------------
+        risk_val = risk_score(raised, burn, runway, revenue)
+        market_val = market_score(runway, revenue, traction)
+        capital_val = capital_structure_score(raised, burn, runway)
+
         confidence = calculate_confidence(
-            risk["score"],
-            market["score"],
-            capital["score"]
+            risk_val,
+            market_val,
+            capital_val
         )
 
         allocation = capital_allocation(confidence)
@@ -157,9 +169,9 @@ if st.button("Run Capital Evaluation"):
     st.markdown('<div class="breakdown-box">', unsafe_allow_html=True)
 
     st.markdown("### Agent Scores (0 – 1 Scale)")
-    st.write(f"Risk Score: {risk['score']}")
-    st.write(f"Market Score: {market['score']}")
-    st.write(f"Capital Structure Score: {capital['score']}")
+    st.write(f"Risk Score: {risk_val}")
+    st.write(f"Market Score: {market_val}")
+    st.write(f"Capital Structure Score: {capital_val}")
     st.write(f"Weighted Confidence: {confidence}")
 
     st.markdown("---")
@@ -208,6 +220,6 @@ if st.button("Run Capital Evaluation"):
 
 # -------------------- FOOTER --------------------
 st.markdown(
-    "<div class='footer'>AIC-DAO • Institutional Autonomous Capital Infrastructure • v6.1</div>",
+    "<div class='footer'>AIC-DAO • Institutional Autonomous Capital Infrastructure • v7.0 Quantitative</div>",
     unsafe_allow_html=True
 )
